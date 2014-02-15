@@ -33,9 +33,9 @@ function handleBetAmountClick(e) {
   var amount = localStorage.getItem('betAmount') || betAmounts[0];
   var oldAmount = amount;
   if (e.button === 'up') {
-    amount = betAmounts[(betAmounts.indexOf(amount) + 1) % betAmounts.length];
+    amount++;// amount = betAmounts[(betAmounts.indexOf(amount) + 1) % betAmounts.length];
   } else if (e.button === 'down') {
-    amount = betAmounts[(betAmounts.indexOf(amount) - 1) % betAmounts.length];
+    amount--;// = betAmounts[(betAmounts.indexOf(amount) - 1) % betAmounts.length];
   }
 
   simply.body('e.button: ' + e.button + '. setting amount from ' + oldAmount + ' to: ' + amount);
