@@ -12,7 +12,7 @@ function renderBetSelection() {
 }
 
 function renderBetAmount(amount) {
-  simply.title('Set bet amount:');
+  // simply.title('Set bet amount:');
   simply.subtitle('$' + amount + '.00');
 }
 
@@ -37,7 +37,7 @@ function handleBetAmountClick(e) {
     amount = betAmounts[(betAmounts.indexOf(amount) - 1) % betAmounts.length];
   }
 
-  simply.subtitle('e.button: ' e.button);
+  simply.title('e.button: ' e.button);
   // amount = 5; // quick hardcoded test
   localStorage.setItem('betAmount', amount);
   renderBetAmount(amount);
