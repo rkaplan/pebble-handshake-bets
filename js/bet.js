@@ -1,5 +1,4 @@
 var betAmounts = [1, 5, 10, 20, 50, 100];
-var amount = betAmounts[0];
 var Modes = {
   'SELECT_BET': 0,
   'SET_BET_AMOUNT': 1,
@@ -12,15 +11,16 @@ function renderBetSelection() {
   simply.subtitle('(click to select example)');
 }
 
-function renderBetAmount() {
+function renderBetAmount(amount) {
   simply.title('Set bet amount:');
-  amount = parseInt(localStorage.getItem('betAmount')) || betAmounts[0];
   simply.subtitle('$' + amount + '.00');
 }
 
 function setBetAmount() {
   curMode = Modes.SET_BET_AMOUNT;
-  renderBetAmount();
+  var startAmount = betAmounts[0];
+  localStorage.setItem('betAmount', startAmount);
+  renderBetAmount(startAmount);
 }
 
 function handleBetSelectClick(e) {
@@ -30,6 +30,7 @@ function handleBetSelectClick(e) {
 }
 
 function handleBetAmountClick(e) {
+  var amount = localStorage.getItem('betAmount') || betAmounts[0];
   if (e.button === 'up') {
     amount = betAmounts[(betAmounts.indexOf(amount) + 1) % betAmounts.length];
   } else if (e.button === 'down') {
@@ -37,7 +38,7 @@ function handleBetAmountClick(e) {
   }
   // amount = 5; // quick hardcoded test
   localStorage.setItem('betAmount', amount);
-  renderBetAmount();
+  renderBetAmount(amount);
 }
 
 simply.on('singleClick', function(e) {
