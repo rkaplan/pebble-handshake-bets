@@ -1,5 +1,6 @@
 Pebble.addEventListener("ready", function() {
   simply.title('Hello World!');
+  simply.subtitle('');
   console.log("My app has started - Doing stuff...");
   Pebble.showSimpleNotificationOnPebble("CoolApp", "I am running!");
 });
@@ -14,5 +15,6 @@ simply.on('accelTap', function(e) {
     }, function(data){
         // var headline = data.match(/<h1>(.*?)<\/h1>/)[1];
         simply.title("Got reply");
+        simply.vibe('short');
     });
 });
