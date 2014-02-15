@@ -30,12 +30,12 @@ function handleBetSelectClick(e) {
 }
 
 function handleBetAmountClick(e) {
-  // if (e.button === 'up') {
-  //   amount = betAmounts[(betAmounts.indexOf(amount) + 1) % betAmounts.length]
-  // } else if (e.button === 'down') {
-  //   amount = betAmounts[(betAmounts.indexOf(amount) - 1) % betAmounts.length]
-  // }
-  amount = 5; // quick hardcoded test
+  if (e.button === 'up') {
+    amount = betAmounts[(betAmounts.indexOf(amount) + 1) % betAmounts.length];
+  } else if (e.button === 'down') {
+    amount = betAmounts[(betAmounts.indexOf(amount) - 1) % betAmounts.length];
+  }
+  // amount = 5; // quick hardcoded test
   localStorage.setItem('betAmount', amount);
   renderBetAmount();
 }
