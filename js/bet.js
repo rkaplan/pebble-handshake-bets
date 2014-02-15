@@ -31,14 +31,14 @@ function handleBetSelectClick(e) {
 
 function handleBetAmountClick(e) {
   var amount = localStorage.getItem('betAmount') || betAmounts[0];
+  var oldAmount = amount;
   if (e.button === 'up') {
     amount = betAmounts[(betAmounts.indexOf(amount) + 1) % betAmounts.length];
   } else if (e.button === 'down') {
     amount = betAmounts[(betAmounts.indexOf(amount) - 1) % betAmounts.length];
   }
 
-  simply.body('e.button: ' + e.button + '. setting amount to: ' + amount);
-  // amount = 5; // quick hardcoded test
+  simply.body('e.button: ' + e.button + '. setting amount from ' + oldAmount + ' to: ' + amount);
   localStorage.setItem('betAmount', amount);
   renderBetAmount(amount);
 }
@@ -64,5 +64,4 @@ simply.on('accelTap', function(e) {
   }
 });
 
-// renderBetSelection();
-simply.body('i control the body.');
+renderBetSelection();
