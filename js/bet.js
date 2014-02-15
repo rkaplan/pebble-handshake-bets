@@ -15,13 +15,12 @@ function renderBetSelection() {
 
 function renderBetAmount(amount) {
   simply.title('Set bet amount:');
-  simply.subtitle('$' + amount + '.00');
+  simply.subtitle('$' + betAmounts[amount] + '.00');
 }
 
 function setBetAmount() {
   curMode = Modes.SET_BET_AMOUNT;
-  var startAmount = betAmounts[0];
-  localStorage.setItem('betAmount', startAmount);
+  localStorage.setItem('betAmount', 0);
   renderBetAmount(startAmount);
 }
 
@@ -31,13 +30,14 @@ function handleBetSelectClick(e) {
 }
 
 function handleBetAmountClick(e) {
-  var amount = localStorage.getItem('betAmount') || betAmounts[0];
-  var oldAmount = amount;
+  var amount = localStorage.getItem('betAmount') || 0;
   if (e.button === 'up') {
-    amount++;// amount = betAmounts[(betAmounts.indexOf(amount) + 1) % betAmounts.length];
+    amount++;
   } else if (e.button === 'down') {
-    amount--;// = betAmounts[(betAmounts.indexOf(amount) - 1) % betAmounts.length];
+    amount--;
   }
+  if (amount >= betAmounts.length) amount = 0;
+  if (amount < 0) amount = betAmounts.length - 1;
 
   simply.body(totalButtonClicks + ', e.button: ' + e.button + '. setting amount from ' + oldAmount + ' to: ' + amount);
   localStorage.setItem('betAmount', amount);
@@ -45,6 +45,7 @@ function handleBetAmountClick(e) {
 }
 
 simply.on('singleClick', function(e) {
+  console.log("SingleClick called: " + JSON.stringify(e));
   totalButtonClicks++;
   if (curMode === Modes.SELECT_BET)
     handleBetSelectClick(e);
