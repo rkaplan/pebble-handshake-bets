@@ -1,5 +1,7 @@
+simply.title('Hello World!');
+
 Pebble.addEventListener("ready", function() {
-  simply.title('Hello World!');
+  simply.title('We\'re ready.');
   simply.subtitle('');
   console.log("My app has started - Doing stuff...");
   Pebble.showSimpleNotificationOnPebble("CoolApp", "I am running!");
