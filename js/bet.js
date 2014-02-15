@@ -29,6 +29,7 @@ function handleBetSelectClick(e) {
 }
 
 function handleBetAmountClick(e) {
+  var amount;
   if (e.button === 'up') {
     amount = betAmounts[(betAmounts.indexOf(amount) + 1) % betAmounts.length]
   } else if (e.button === 'down') {
