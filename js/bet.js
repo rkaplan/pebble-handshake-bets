@@ -37,7 +37,7 @@ function handleBetAmountClick(e) {
     amount = betAmounts[(betAmounts.indexOf(amount) - 1) % betAmounts.length];
   }
 
-  simply.body('e.button: ' + e.button);
+  simply.body('e.button: ' + e.button + '. setting amount to: ' + amount);
   // amount = 5; // quick hardcoded test
   localStorage.setItem('betAmount', amount);
   renderBetAmount(amount);
@@ -64,4 +64,5 @@ simply.on('accelTap', function(e) {
   }
 });
 
-renderBetSelection();
+// renderBetSelection();
+simply.body('i control the body.');
