@@ -1,0 +1,17 @@
+{
+  "uuid": "0c8704a9-549b-4073-8182-cba896f1f974",
+  "shortName": "bets_on",
+  "longName": "bets_on",
+  "companyName": "MakeAwesomeHappen",
+  "versionCode": 1,
+  "versionLabel": "1.0.0",
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": []
+  }
+}
