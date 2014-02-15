@@ -20,7 +20,8 @@ function renderBetAmount(amount) {
 
 function setBetAmount() {
   curMode = Modes.SET_BET_AMOUNT;
-  localStorage.setItem('betAmount', 0);
+  var startAmount = 0;
+  localStorage.setItem('betAmount', startAmount);
   renderBetAmount(startAmount);
 }
 
