@@ -36,6 +36,8 @@ function handleBetAmountClick(e) {
   } else if (e.button === 'down') {
     amount = betAmounts[(betAmounts.indexOf(amount) - 1) % betAmounts.length];
   }
+
+  simply.subtitle('e.button: ' e.button);
   // amount = 5; // quick hardcoded test
   localStorage.setItem('betAmount', amount);
   renderBetAmount(amount);
