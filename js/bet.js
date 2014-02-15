@@ -3,16 +3,17 @@ var Modes = {
   'SELECT_BET': 0,
   'SET_BET_AMOUNT': 1,
   'WAIT_FOR_HAND_SHAKE': 2
-}
+};
 var curMode = Modes.SELECT_BET;
 
 function renderBetSelection() {
   simply.title('Select a bet:');
   simply.subtitle('(click to select example)');
+  simply.body('');
 }
 
 function renderBetAmount(amount) {
-  // simply.title('Set bet amount:');
+  simply.title('Set bet amount:');
   simply.subtitle('$' + amount + '.00');
 }
 
@@ -24,8 +25,7 @@ function setBetAmount() {
 }
 
 function handleBetSelectClick(e) {
-  // simply.subtitle('You clicked ' + e.button + '!');
-  if (e.button == 'select')
+  if (e.button === 'select')
     setBetAmount();
 }
 
@@ -37,16 +37,16 @@ function handleBetAmountClick(e) {
     amount = betAmounts[(betAmounts.indexOf(amount) - 1) % betAmounts.length];
   }
 
-  simply.title('e.button: ' + e.button);
+  simply.body('e.button: ' + e.button);
   // amount = 5; // quick hardcoded test
   localStorage.setItem('betAmount', amount);
   renderBetAmount(amount);
 }
 
 simply.on('singleClick', function(e) {
-  if (curMode == Modes.SELECT_BET)
+  if (curMode === Modes.SELECT_BET)
     handleBetSelectClick(e);
-  else if (curMode == Modes.SET_BET_AMOUNT)
+  else if (curMode === Modes.SET_BET_AMOUNT)
     handleBetAmountClick(e);
 });
 
