@@ -63,8 +63,10 @@ function Menu(title, subtitle, menuItems, itemClickHandler) {
 /*
  * Constants and global variables.
  */
+var PEBBLE_TOKEN = Pebble.getAccountToken();
 var BET_AMOUNTS = [1, 5, 10, 20, 50, 100];
-var BET_TYPES = [
+var BET_TYPES;
+var BET_TYPES_HARDCODED = [
   {
     'label': 'Facebook',
     'id': 0
@@ -98,20 +100,29 @@ var Modes = {
   'MENU': 0,
   'WAIT_FOR_HAND_SHAKE': 1,
   'WAIT_FOR_CONFIRMATION': 2,
-  'BET_CONFIRMED': 3
+  'WAIT_FOR_AVAILABLE_BETS': 3,
+  'BET_CONFIRMED': 4
 };
-var curMode = Modes.MENU,
+var curMode,
     curMenu,
-    curBet;
+    curBet,
+    isBettor;
 
 
 /*
  * Initialization helpers
  */
 function start() {
-  clearScreen();
+  console.log('starting!');
   curMode = Modes.MENU;
-  curMenu = new Menu('Select a bet', '', BET_TYPES, launchAmountSelectionMenu);
+  curMenu = new Menu('Bets On', 'Select action', [
+      {
+        'label': 'Create bet'
+      },
+      {
+        'label': 'Agree to bet'
+      }
+    ], startMenuHandler);
   curMenu.render();
 }
 
@@ -148,21 +159,20 @@ function clearScreen() {
   simply.body('');
 }
 
-// function renderBetSelection() {
-//   clearScreen();
-//   simply.title('Select a bet:');
-//   simply.subtitle('(click to select example)');
-// }
-
-// function renderBetAmount() {
-//   simply.title('Set bet amount:');
-//   simply.subtitle('$' + curBet.amount + '.00');
-// }
+function renderLoadingAvailableBets() {
+  simply.title('Loading your bets...');
+}
 
 function renderHandshakePrompt(betLabel, amountLabel) {
-  simply.title(betLabel);
-  simply.subtitle(amountLabel);
-  simply.body('Shake hands to make the bet.');
+  if (isBettor) { 
+    simply.title(betLabel);
+    simply.subtitle(amountLabel);
+    simply.body('Shake hands to make the bet.');
+  } else {
+    simply.title('Shake hands!');
+    simply.subtitle('');
+    simply.body('Shake hands with the person creating the bet to seal the deal.');
+  }
 }
 
 function renderWaitScreen() {
@@ -173,13 +183,30 @@ function renderWaitScreen() {
 
 function renderBetConfirmed() {
   simply.title('Bet made!');
-  simply.subtitle(curBet.betType.label + ' - ' + curBet.amountType.label);
+  if (curBet)
+    simply.subtitle(curBet.betType.label + ' - ' + curBet.amountType.label);
   simply.body('Now go win it.');
 }
 
 /*
  * Handler functions
  */
+function startMenuHandler(itemClicked) {
+  if (itemClicked.label === 'Create bet') {
+    isBettor = true;
+    waitForAvailableBets();
+  } else if (itemClicked.label === 'Agree to bet') {
+    isBettor = false;
+    launchHandshakePrompt();
+  }
+}
+
+function launchBetSelectionMenu(betTypes) {
+  curMode = Modes.MENU;
+  curMenu = new Menu('Select a bet', '', betTypes, launchAmountSelectionMenu);
+  curMenu.render();
+}
+
 function launchAmountSelectionMenu(selectedBet) {
   var amnountsMenuItems = createAmountMenuItems(selectedBet);
   curMenu = new Menu(selectedBet.label, 'Select amount', amnountsMenuItems, launchHandshakePrompt);
@@ -188,72 +215,88 @@ function launchAmountSelectionMenu(selectedBet) {
 
 function launchHandshakePrompt(selectedAmount) {
   curMode = Modes.WAIT_FOR_HAND_SHAKE;
-  curBet = createBet(selectedAmount);
-  renderHandshakePrompt(curBet.betType.label, curBet.amountType.label);
+  if (isBettor) {
+    curBet = createBet(selectedAmount);
+    renderHandshakePrompt(curBet.betType.label, curBet.amountType.label);
+  } else {
+    renderHandshakePrompt();
+  }
 }
-
-// function handleBetSelectClick(e) {
-//   if (e.button === 'select')
-//     setBetAmount();
-// }
-
-// function handleBetAmountClick(e) {
-//   if (e.button === 'select') {
-//     promptHandshake();
-//   } else {
-//     var newAmountIndex = curBet.amountIndex;
-//     if (e.button === 'up') {
-//       newAmountIndex++;
-//     } else if (e.button === 'down') {
-//       newAmountIndex--;
-//     }
-//     if (newAmountIndex >= BET_AMOUNTS.length) newAmountIndex = 0;
-//     if (newAmountIndex < 0) newAmountIndex = BET_AMOUNTS.length - 1;
-
-//     // simply.body(totalButtonClicks + ', e.button: ' + e.button + '. setting amount to: ' + amount);
-//     curBet.amountIndex = newAmountIndex;
-//     curBet.amount      = BET_AMOUNTS[newAmountIndex];
-//     renderBetAmount();
-//   }
-// }
 
 simply.on('singleClick', function(e) {
   if (curMode === Modes.MENU)
     curMenu.handleClick(e);
-  // else if (curMode === Modes.SELECT_BET)
-  //   handleBetSelectClick(e);
-  // else if (curMode === Modes.SET_BET_AMOUNT)
-  //   handleBetAmountClick(e);
 });
 
 // respond to handshake event
 simply.on('accelTap', function(e) {
-  if (curMode === Modes.WAIT_FOR_HAND_SHAKE)
-    sendBet();
+  if (curMode === Modes.WAIT_FOR_HAND_SHAKE) {
+    if (isBettor)
+      sendBet();
+    else
+      sendBetAgreement();
+  }
 });
 
 /*
  * Logic functions
  */
-function sendBet() {
-  var id = Pebble.getAccountToken();
-  ajax({
-        url: 'http://betsonapp.com/shake',
-        method: 'POST',
-        data: {'pebble_token': id}
-    }, receiveBetConfirmation);
-  waitForConfirmation();
+function waitForConfirmation() {
+  curMode = Modes.WAIT_FOR_CONFIRMATION;
+  renderWaitScreen();
 }
 
+function waitForAvailableBets() {
+  curMode = Modes.WAIT_FOR_AVAILABLE_BETS;
+  clearScreen();
+  renderLoadingAvailableBets();
+  getAvailableBets();
+}
+
+/*
+ * Communicate with server
+ */
 function receiveBetConfirmation(data) {
   curMode = Modes.BET_CONFIRMED;
   simply.vibe('short');
   renderBetConfirmed();
 }
 
-function waitForConfirmation() {
-  curMode = Modes.WAIT_FOR_CONFIRMATION;
-  renderWaitScreen();
+function receiveAvailableBets(data) {
+  console.log('data: ');
+  console.log(data);
+
+  curMode = Modes.BET_CONFIRMED;
+  simply.vibe('short');
+  simply.title('wow received');
+  launchBetSelectionMenu(JSON.parse(data).bets);
+}
+
+function getAvailableBets() {
+  ajax({
+      url: 'http://betsonapp.com/bets',
+      method: 'POST',
+      data: {'pebble_token': PEBBLE_TOKEN}
+  }, receiveAvailableBets);
+  // receiveAvailableBets({'bets': BET_TYPES_HARDCODED});
+}
+
+function sendBet() {
+  ajax({
+      url: 'http://betsonapp.com/shake',
+      method: 'POST',
+      data: {'pebble_token': PEBBLE_TOKEN}
+  }, receiveBetConfirmation);
+  waitForConfirmation();
+}
+
+function sendBetAgreement() {
+  ajax({
+      url: 'http://betsonapp.com/shake',
+      method: 'POST',
+      data: {'pebble_token': PEBBLE_TOKEN}
+  }, receiveBetConfirmation);
+  waitForConfirmation();
 }
 
 start();
