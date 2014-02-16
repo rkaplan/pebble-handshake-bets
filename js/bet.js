@@ -1,17 +1,110 @@
+/*
+ * A class to provide basic menu functionally to SimplyJS pebble apps.
+ * Pass in an array of menu item objects, each with a 'label' field, and
+ * a handler for what happens when an item is selected, and Menu takes
+ * care of scrolling, rerendering, and calling your handler on select.
+ */
+function Menu(title, menuItems, itemClickHandler) {
+  
+  this.title = title;
+  this.items = menuItems;
+  this.onItemClick = itemClickHandler;
+  this.body = '';
+  this.curItem = 0;
+  this.ARROW_STICKY_INDEX = 2; // where the menu arrow sticks in the general case
+
+  this.updateBody = function() {
+    this.body = '';
+    var startItem = this.curItem >= this.ARROW_STICKY_INDEX ? this.curItem - this.ARROW_STICKY_INDEX : 0;
+
+    for (var i = startItem; i < this.items.length; i++) {
+      if (i === this.curItem)
+        this.body += '> ';
+      this.body += this.items[i].label + '\n';
+    }
+  };
+
+  this.render = function() {
+    this.updateBody();
+    simply.title(this.title);
+    simply.body(this.body);
+  };
+
+  this.scrollUp = function() {
+    if (this.curItem === 0) // already at the top of the menu
+      return;
+    this.curItem--;
+    this.render();
+  };
+
+  this.scrollDown = function() {
+    if (this.curItem === this.items.length - 1) // already at the bottom of the menu
+      return;
+    this.curItem++;
+    this.render();
+  };
+
+  this.handleClick = function(e) {
+    if (e.button === 'up')
+      this.scrollUp();
+    else if (e.button === 'down')
+      this.scrollDown();
+    else if (e.button === 'select')
+      this.onItemClick();
+  };
+}
+
 var betAmounts = [1, 5, 10, 20, 50, 100];
 var Modes = {
-  'SELECT_BET': 0,
-  'SET_BET_AMOUNT': 1,
-  'WAIT_FOR_HAND_SHAKE': 2,
-  'WAIT_FOR_CONFIRMATION': 3,
-  'BET_CONFIRMED': 4
+  'MENU': 0,
+  'SELECT_BET': 1,
+  'SET_BET_AMOUNT': 2,
+  'WAIT_FOR_HAND_SHAKE': 3,
+  'WAIT_FOR_CONFIRMATION': 4,
+  'BET_CONFIRMED': 5
 };
+var BET_TYPES = [
+  {
+    'label': 'Facebook',
+    'id': 0
+  },
+  {
+    'label': 'Twitter',
+    'id': 1
+  },
+  {
+    'label': 'Angry Birds',
+    'id': 2
+  },
+  {
+    'label': 'Web page',
+    'id': 3
+  },
+  {
+    'label': 'PennApps',
+    'id': 4
+  },
+  {
+    'label': 'Reddit',
+    'id': 5
+  },
+  {
+    'label': 'Hacker News',
+    'id': 6
+  }
+];
 var curMode = Modes.SELECT_BET;
+var curMenu;
 var curBet = {
   'amountIndex': 0,
   'amount': betAmounts[0],
   'betType': 'Test'
 };
+
+function start() {
+  curMode = Modes.SELECT_BET;
+  renderBetSelection();
+}
 
 /*
  * Rendering functions
@@ -29,24 +122,22 @@ function renderBetSelection() {
 }
 
 function renderBetAmount() {
-  clearScreen();
   simply.title('Set bet amount:');
   simply.subtitle('$' + curBet.amount + '.00');
 }
 
 function renderHandshakePrompt() {
-  clearScreen();
   simply.title('Shake hands to bet $' + curBet.amount + '.00 on ' + curBet.betType);
+  simply.subtitle('');
 }
 
 function renderWaitScreen() {
-  clearScreen();
   simply.title('Processing...');
 }
 
 function renderBetConfirmed() {
-  clearScreen();
   simply.title('Bet confirmed!');
+  simply.body('Now go win it.');
 }
 
 /*
@@ -78,7 +169,9 @@ function handleBetAmountClick(e) {
 }
 
 simply.on('singleClick', function(e) {
-  if (curMode === Modes.SELECT_BET)
+  if (curMode === Modes.MENU)
+    curMenu.handleClick(e);
+  else if (curMode === Modes.SELECT_BET)
     handleBetSelectClick(e);
   else if (curMode === Modes.SET_BET_AMOUNT)
     handleBetAmountClick(e);
@@ -124,5 +217,11 @@ function waitForConfirmation() {
   renderWaitScreen();
 }
 
+// start();
+
 clearScreen();
-renderBetSelection();
+curMode = Modes.MENU;
+curMenu = new Menu('Select a bet', BET_TYPES, function() {
+  console.log('I was clicked');
+});
+curMenu.render();
