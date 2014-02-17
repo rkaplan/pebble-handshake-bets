@@ -36,16 +36,14 @@ function Menu(title, subtitle, menuItems, itemClickHandler) {
   };
 
   this.scrollUp = function() {
-    if (this.curItem === 0) // already at the top of the menu
-      return;
-    this.curItem--;
+    if (this.curItem !== 0) // already at the top of the menu
+      this.curItem--;
     this.render();
   };
 
   this.scrollDown = function() {
-    if (this.curItem === this.items.length - 1) // already at the bottom of the menu
-      return;
-    this.curItem++;
+    if (this.curItem !== this.items.length - 1) // already at the bottom of the menu
+      this.curItem++;
     this.render();
   };
 
@@ -238,6 +236,11 @@ simply.on('accelTap', function(e) {
   }
 });
 
+simply.on('paired', function(e) {
+  console.log('GOT THE PAIR CODE IN BETJS: ' + e.pairCode);
+  pairPebble(e.pairCode);
+});
+
 /*
  * Logic functions
  */
@@ -263,12 +266,7 @@ function receiveBetConfirmation(data) {
 }
 
 function receiveAvailableBets(data) {
-  console.log('data: ');
-  console.log(data);
-
   curMode = Modes.BET_CONFIRMED;
-  simply.vibe('short');
-  simply.title('wow received');
   launchBetSelectionMenu(JSON.parse(data).bets);
 }
 
@@ -283,9 +281,9 @@ function getAvailableBets() {
 
 function sendBet() {
   ajax({
-      url: 'http://betsonapp.com/shake',
+      url: 'http://betsonapp.com/shake/' + curBet.betType.id,
       method: 'POST',
-      data: {'pebble_token': PEBBLE_TOKEN}
+      data: {'pebble_token': PEBBLE_TOKEN, 'bet_amount': curBet.amountType.amount}
   }, receiveBetConfirmation);
   waitForConfirmation();
 }
@@ -297,6 +295,14 @@ function sendBetAgreement() {
       data: {'pebble_token': PEBBLE_TOKEN}
   }, receiveBetConfirmation);
   waitForConfirmation();
+}
+
+function pairPebble(pairCode) {
+    ajax({
+      url: 'http://betsonapp.com/pair/' + pairCode,
+      method: 'POST',
+      data: {'pebble_token': PEBBLE_TOKEN}
+  });
 }
 
 start();
