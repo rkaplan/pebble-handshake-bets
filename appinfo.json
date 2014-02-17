@@ -1,17 +1,22 @@
 {
-  "uuid": "0c8704a9-549b-4073-8182-cba896f1f974",
-  "shortName": "bets_on",
-  "longName": "bets_on",
-  "companyName": "MakeAwesomeHappen",
+  "uuid": "335d4bb0-9710-11e3-a5e2-0800200c9a66",
+  "shortName": "Bets On",
+  "longName": "Bets On",
+  "companyName": "Russell Kaplan",
   "versionCode": 1,
-  "versionLabel": "1.0.0",
+  "versionLabel": "0.2.5",
+  "capabilities": [ "configurable" ],
   "watchapp": {
     "watchface": false
   },
-  "appKeys": {
-    "dummy": 0
-  },
+  "appKeys": {},
   "resources": {
-    "media": []
+    "media": [
+      {
+        "type": "font",
+        "name": "MONO_FONT_14",
+        "file": "fonts/UbuntuMono-regular.ttf"
+      }
+    ]
   }
 }
